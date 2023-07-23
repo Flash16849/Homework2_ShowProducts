@@ -60,22 +60,27 @@ function addItemToCartList(crocs){
 }
 
 function buildCardInCart(card){
-    let itemInCart = document.createElement("div");
-        Object.assign(itemInCart.style, {
-    
-            "background-color": "white",
-            "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
-            "width": "20%",
-            "height": "30%",
-            "padding": "5%",
-            "text-align": "center",
-            "font-family": "arial",
-        });
-        itemInCart.innerHTML = `<img src=${card.img} alt="Denim Jeans" style="width:70%">
-        <p style="padding-right: 2px; padding-left: 2px;">${card.itemName}</p>
-        <h3>${card.price}</h3>
-        <p>${card.description}</p>`;
-        overlay.appendChild(itemInCart);
+    let checkout = document.createElement("div");
+    checkout.style.height = "80%";
+    checkout.style.width  = "90%";
+    checkout.style.display = "flex";
+    let itemInCart = document.createElement("span");
+    Object.assign(itemInCart.style, {
+        "background-color": "white",
+        "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
+        "width": "40%",
+        "height": "90%",
+        "padding": "1%",
+        "text-align": "center",
+        "font-family": "arial",
+    });
+    itemInCart.innerHTML = `<img src=${card.img} alt="crocs" style="width:20%">
+    <p style="padding-right: 2px; padding-left: 2px; font-size: small">${card.itemName}</p>
+    <p>${card.price}</p>
+    <p>Số lượng: ${card.quantityInCart}</p>`;
+    checkout.appendChild(itemInCart);
+
+    overlay.appendChild(checkout);
 }
 
 function totalMoney(){
@@ -166,7 +171,7 @@ function buildNavbar(){
             }
         }
         
-        overlay.style.display = "flex";
+        overlay.style.display = "grid";
         overlay.style.position = "fixed";
         overlay.style.justifyContent = "space-between";
     }
@@ -177,45 +182,51 @@ function buildNavbar(){
 
 
     let overlay = document.getElementById("overlay");
-   
+    let buttonDiv = document.createElement("div");
+    buttonDiv.style.margin = "2%";
+    buttonDiv.style.height = "100%";
+    buttonDiv.style.width = "100%";
+    buttonDiv.style.display = "flex";
     let buttonX = document.createElement("button");
+    
     buttonX.style.backgroundColor = "white";
     buttonX.style.color = "black";
-    buttonX.style.height = "10%";
-    buttonX.style.width = "10%";
+    buttonX.style.height = "30%";
+    buttonX.style.width = "15%";
     buttonX.innerText = "Close";
     buttonX.addEventListener("click", () => {
         off();
     })
+    buttonDiv.appendChild(buttonX);
     
-    let checkout = document.createElement("div");
     let placeOder = document.createElement("button");
+    placeOder.style.marginLeft = "5px";
     placeOder.style.backgroundColor = "white";
     placeOder.style.color = "black";
-    placeOder.style.height = "10%";
-    placeOder.style.width = "10%";
+    placeOder.style.height = "30%";
+    placeOder.style.width = "15%";
     placeOder.innerText = "Place oder";
     placeOder.style.position = "bottom";
     placeOder.addEventListener("click", () => {
         totalMoney();
     })
+    buttonDiv.appendChild(placeOder);
 
     Object.assign(overlay.style, {
         "position" : "fixed",
         "display": "none",
-        "width": "50%",
-        "height": "100%",
+        "width": "80%",
+        "height": "80%",
         "top": "0",
         "left": "0",
         "right": "0",
         "bottom": "0",
         "margin": "auto",
-        "background-color": "white",
+        "background-color": "rgb(0,0,0,0.5)",
         "z-index": "2"
     });
     
-    overlay.appendChild(buttonX);
-    overlay.appendChild(placeOder);
+    overlay.appendChild(buttonDiv);
     
     let cart = document.createElement("img");
     cart.src = "https://theme.hstatic.net/200000067244/1000685399/14/cart.svg?v=3694";
