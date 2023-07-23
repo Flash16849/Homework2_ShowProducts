@@ -1,3 +1,5 @@
+import myJson from "./cardList.json" assert {type: 'json'};
+
 let container = document.getElementById("container");
 let body = document.body;
 body.style.display = "contents";
@@ -36,6 +38,57 @@ function buildHeader(){
     return header;
 }
 
+let cartList = [];
+function addItemToCartList(crocs){
+    let itemPosition = cartList.findIndex((itemInCart) => {
+        return itemInCart.id == crocs.id;
+    });
+
+    if(itemPosition === -1){
+        crocs.quantityInCart = 1;
+        cartList.push(crocs);
+    }else{
+        if(cartList[itemPosition].quantityInCart == cartList[itemPosition].quantity){
+            alert("Sản phẩm hết hàng");
+        }else{
+            cartList[itemPosition].quantityInCart += 1;
+        }
+    }
+
+    console.log(cartList);
+
+}
+
+function buildCardInCart(card){
+    let itemInCart = document.createElement("div");
+        Object.assign(itemInCart.style, {
+    
+            "background-color": "white",
+            "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
+            "width": "20%",
+            "height": "30%",
+            "padding": "5%",
+            "text-align": "center",
+            "font-family": "arial",
+        });
+        itemInCart.innerHTML = `<img src=${card.img} alt="Denim Jeans" style="width:70%">
+        <p style="padding-right: 2px; padding-left: 2px;">${card.itemName}</p>
+        <h3>${card.price}</h3>
+        <p>${card.description}</p>`;
+        overlay.appendChild(itemInCart);
+}
+
+function totalMoney(){
+    let total = 0;
+    for(let i = 0; i < overlayList.length; i++){
+        let totalEach = parseFloat(overlayList[i].price) * parseFloat(overlayList[i].quantityInCart);
+        total += totalEach;
+    }
+    alert(`Tổng số tiền đơn hàng: ${total}`);
+    console.log(total);
+}
+
+let overlayList = [];
 function buildNavbar(){
     let navBar = document.createElement("div");
     navBar.style.display = "flex";
@@ -92,12 +145,92 @@ function buildNavbar(){
 
 
     navBar.appendChild(searchBox);
-    
 
+
+    
+    function on(){
+        if(overlayList.length == 0){
+            for(let i=0; i<cartList.length; i++){
+                overlayList.push(cartList[i]);
+                buildCardInCart(cartList[i]);
+            }
+        }
+            
+        if(overlayList.length < cartList.length){
+            let n = cartList.length - overlayList.length;
+            let temp = overlayList.length;
+            for(let i = 0; i < n; i++){
+                overlayList.push(cartList[temp]);
+                buildCardInCart(overlayList[temp]);
+                temp++;
+            }
+        }
+        
+        overlay.style.display = "flex";
+        overlay.style.position = "fixed";
+        overlay.style.justifyContent = "space-between";
+    }
+
+    function off(){
+        overlay.style.display = "none";
+    }
+
+
+    let overlay = document.getElementById("overlay");
+   
+    let buttonX = document.createElement("button");
+    buttonX.style.backgroundColor = "white";
+    buttonX.style.color = "black";
+    buttonX.style.height = "10%";
+    buttonX.style.width = "10%";
+    buttonX.innerText = "Close";
+    buttonX.addEventListener("click", () => {
+        off();
+    })
+    
+    let checkout = document.createElement("div");
+    let placeOder = document.createElement("button");
+    placeOder.style.backgroundColor = "white";
+    placeOder.style.color = "black";
+    placeOder.style.height = "10%";
+    placeOder.style.width = "10%";
+    placeOder.innerText = "Place oder";
+    placeOder.style.position = "bottom";
+    placeOder.addEventListener("click", () => {
+        totalMoney();
+    })
+
+    Object.assign(overlay.style, {
+        "position" : "fixed",
+        "display": "none",
+        "width": "50%",
+        "height": "100%",
+        "top": "0",
+        "left": "0",
+        "right": "0",
+        "bottom": "0",
+        "margin": "auto",
+        "background-color": "white",
+        "z-index": "2"
+    });
+    
+    overlay.appendChild(buttonX);
+    overlay.appendChild(placeOder);
+    
     let cart = document.createElement("img");
     cart.src = "https://theme.hstatic.net/200000067244/1000685399/14/cart.svg?v=3694";
     cart.style.width = "25px";
     cart.style.marginLeft = "1.5%";
+
+    cart.addEventListener("click", () =>{
+        if(cartList.length == 0){
+            alert("Không có sản phẩm nào trong giỏ hàng");
+        }else{
+            cart.onclick = on();   
+        }
+    });
+    
+
 
     navBar.appendChild(cart);
 
@@ -138,55 +271,20 @@ function buildBody(){
     return description;
 }
 
-function buildItemC(name, price, imgUrl, description){
-    let itemCard = document.createElement("div");
-    Object.assign(itemCard.style, {
-        "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
-        "width": "90%",
-        "height": "90%",
-        "margin": "auto",
-        "text-align": "center",
-        "font-family": "arial",
-    });
-    itemCard.innerHTML = `<img src=${imgUrl} alt="Denim Jeans" style="width:70%">
-    <p style="padding-right: 2px; padding-left: 2px;">${name}</p>
-    <h3>${price}</h3>
-    <p>${description}</p>
-    <p><button style="
-    border: none;
-    outline: 0;
-    padding: 12px;
-    color: white;
-    background-color: #000;
-    text-align: center;
-    cursor: pointer;
-    width: 100%;
-    font-size: 18px">
-    Add to Cart</button></p>`
-   
-    return itemCard; 
+
+let listOfCard = [...myJson];
+class item {
+    constructor(id, quantity, quantityInCart, itemName, price, img, description){
+        this.id = id;
+        this.quantity = quantity;
+        this.quantityInCart = parseInt(quantityInCart);
+        this.itemName = itemName;
+        this.price = price;
+        this.img = img;
+        this.description = description
+    }
 }
 
-let itemName = ["Unisex Crocs Siren Clog", "Unisex Crocs Siren Clog", "Unisex Crocs Printed Clog",
-            "Unisex Crocs Baya Clog", "Unisex Crocs Classic Clog", "Unisex Crocs Classic Clog", "Unisex Crocs Classic Clog",
-            "Unisex Crocs Classic Skull Print Clog", "Unisex Crocs Classic Island Escape Clog", "Women's Crocs Baya Platform Printed Clog",
-            "Women's Crocs Baya Platform Printed Clog", "Unisex Crocs Siren Clog"];
-
-let price = ["2.395.000₫", "2.395.000₫", "1.595.000₫", "1.495.000₫", "1.495.000₫", "1.495.000₫", "1.495.000₫", "1.595.000₫",
-            "1.595.000₫", "1.995.000₫", "1.995.000₫", "2.395.000₫"];
-
-let img = ["https://www.crocs.com.vn/cdn/shop/files/208547-2Y2-1_720x.jpg?v=1688538972",
-            "https://www.crocs.com.vn/cdn/shop/files/208547-001-1_720x.jpg?v=1688538356",
-            "https://www.crocs.com.vn/cdn/shop/files/206230-0ZI-1_720x.jpg?v=1687242249",
-            "https://www.crocs.com.vn/cdn/shop/files/10126-2V3-1_720x.jpg?v=1687241938",
-            "https://www.crocs.com.vn/cdn/shop/files/10001-6WD-1_720x.jpg?v=1687241860",
-            "https://www.crocs.com.vn/cdn/shop/files/10001-4NS-1_720x.png?v=1687490600",
-            "https://www.crocs.com.vn/cdn/shop/files/10001-1LM-1_720x.jpg?v=1687229759",
-            "https://www.crocs.com.vn/cdn/shop/files/208993-103-1_720x.jpg?v=1686728931",
-            "https://www.crocs.com.vn/cdn/shop/files/208940-6WA-1_720x.jpg?v=1686728875",
-            "https://www.crocs.com.vn/cdn/shop/files/208712-6J1-1_720x.jpg?v=1686728856",
-            "https://www.crocs.com.vn/cdn/shop/files/208712-0ZI-1_720x.jpg?v=1686728842",
-            "https://www.crocs.com.vn/cdn/shop/files/208547-6VZ-1_720x.jpg?v=1686728806"];
 
 
 let itemList = document.createElement("div");
@@ -194,14 +292,64 @@ itemList.style.marginLeft = "30%"
 itemList.style.display = "grid";
 itemList.style.justifyContent = "space-between";
 itemList.style.gridGap = "1rem";
-itemList.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))";
+itemList.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
 
 
 
-for(let i = 0; i<itemName.length; i++){
-    let card = buildItemC(itemName[i], price[i], img[i], "Comfortable");
+
+function buildItemC(crocs){
+    let itemCard = document.createElement("div");
+    Object.assign(itemCard.style, {
+        "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
+        "width": "80%",
+        "height": "90%",
+        "text-align": "center",
+        "font-family": "arial",
+    });
+    itemCard.innerHTML = `<img src=${crocs.img} alt="Denim Jeans" style="width:70%">
+    <p style="padding-right: 2px; padding-left: 2px;">${crocs.itemName}</p>
+    <h3>${crocs.price}</h3>
+    <p>${crocs.description}</p>`;
+
+
+    let buttonAddToCart = document.createElement("button");
+    buttonAddToCart.innerText = "Add to cart";
+    Object.assign(buttonAddToCart.style, {
+        "border": "none",
+        "outline": "0",
+        "padding": "12px",
+        "color": "white",
+        "background-color": "#000",
+        "text-align": "center",
+        "cursor": "pointer",
+        "width": "100%",
+        "font-size": "18px"
+    })
+
+
+    buttonAddToCart.addEventListener('click', () => {
+        addItemToCartList(crocs);
+    })
+   
+    itemCard.appendChild(buttonAddToCart);
+    return itemCard; 
+}
+
+
+for(let i = 0; i<listOfCard.length; i++){
+    let crocs = new item( 
+        listOfCard[i].id,
+        listOfCard[i].quantity,
+        0,
+        listOfCard[i].itemName,
+        listOfCard[i].price,
+        listOfCard[i].img,
+        listOfCard[i].description
+    );
+    let card = buildItemC(crocs);
     itemList.appendChild(card);
 }
+
 
 let paragraph = document.createElement("div");
 paragraph.style.padding = "20px";
